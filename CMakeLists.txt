@@ -27,3 +27,5 @@ add_subdirectory("${THIRDPARTY_PATH}/glad")
 add_subdirectory("${THIRDPARTY_PATH}/stb_image")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/src/Engine")
+
+add_subdirectory("${PROJECT_SOURCE_DIR}/src/Example")

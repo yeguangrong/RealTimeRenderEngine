@@ -12,8 +12,6 @@
 
 NAMESPACE_START
 
-
-
     // ------------------------------------------------------------------------
     Shader::Shader(const char* vertexCode, const char* fragmentCode)
     {
