@@ -4,17 +4,13 @@
 
 NAMESPACE_START
 
-class Camera;
-
 class RenderContext
 {
 public:
 
     RenderContext() {};
 
-    virtual void prepare() {};
-
-    virtual void render(Camera* camera) {};
+    virtual void drawArrays(float * vextexBuffer) = 0;
 
     virtual ~RenderContext() {};
 

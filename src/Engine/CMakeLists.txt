@@ -1,22 +1,24 @@
 get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 
-include_directories("${CURRENT_DIR}/.." "${CURRENT_DIR}/RHI/.." "${CURRENT_DIR}/RHI/OpenGL/.." "${CURRENT_DIR}/RenderPipeline/.." "${CURRENT_DIR}/RenderPipeline/base/.." "${CURRENT_DIR}/Base/..")
+include_directories("${CURRENT_DIR}/.." "${CURRENT_DIR}/RHI/.." "${CURRENT_DIR}/RHI/OpenGL/.." "${CURRENT_DIR}/Renderer/.." "${CURRENT_DIR}/Renderer/RenderGraph/.." "${CURRENT_DIR}/Base/..")
 
 
 file(GLOB Base_SOURCES
         "${CURRENT_DIR}/Base/*.cpp"
         "${CURRENT_DIR}/Base/*.h"
         )
+FilterFolder("${Base_SOURCES}")
 
-file(GLOB RenderPipeline_SOURCES
-        "${CURRENT_DIR}/RenderPipeline/*.cpp"
-        "${CURRENT_DIR}/RenderPipeline/*.h"
-        "${CURRENT_DIR}/RenderPipeline/base/*.cpp"
-        "${CURRENT_DIR}/RenderPipeline/base/*.h"
+file(GLOB Renderer_SOURCES
+        "${CURRENT_DIR}/Renderer/*.cpp"
+        "${CURRENT_DIR}/Renderer/*.h"
+        "${CURRENT_DIR}/Renderer/RenderGraph/*.cpp"
+        "${CURRENT_DIR}/Renderer/RenderGraph/*.h"
+        "${CURRENT_DIR}/Renderer/RenderGraph/*.inl"
         )
 
-FilterFolder("${RenderPipeline_SOURCES}")
+FilterFolder("${Renderer_SOURCES}")
 
 file(GLOB RHI_SOURCES
         "${CURRENT_DIR}/RHI/*.cpp"
@@ -26,7 +28,7 @@ file(GLOB RHI_SOURCES
 )
 FilterFolder("${RHI_SOURCES}")
 
-list(APPEND SOURCES ${RenderPipeline_SOURCES} ${Base_SOURCES} ${RHI_SOURCES})
+list(APPEND SOURCES ${Renderer_SOURCES} ${Base_SOURCES} ${RHI_SOURCES})
 
 # 生成链接库
 add_library(engine ${SOURCES})

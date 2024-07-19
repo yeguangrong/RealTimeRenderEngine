@@ -4,7 +4,7 @@
 #include"Object.h"
 
 #include <glm/glm.hpp>
-#include<Base/Constants.h>
+#include"Constants.h"
 #include<glad.h>
 
 #include <vector>
@@ -50,7 +50,7 @@ public:
         float yaw = YAW, float pitch = PITCH);
 
     // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+    //Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
  
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix

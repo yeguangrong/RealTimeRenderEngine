@@ -5,9 +5,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <Engine/RenderPipeline/base/Shader.h>
-#include <Engine/RenderPipeline/base/Camera.h>
+#include <Engine/Base/Camera.h>
 #include <Engine/RHI/OpenGL/OpenGLRenderContext.h>
+#include<Engine/Renderer/RenderGraph/RenderGraph.h>
+#include<Engine/Renderer/BasePassRenderer.h>
 
 #include <iostream>
 
@@ -81,7 +82,8 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
     }
 
     OpenGLRenderContext* openGLRenderContext = new OpenGLRenderContext();
-    openGLRenderContext->prepare();
+
+    BasePassRenderer* basePassRenderer = new BasePassRenderer;
 
     // render loop
     // -----------
@@ -97,9 +99,11 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
         // -----
         processInput(window);
 
-        openGLRenderContext->render(&camera);
+        RenderGraph renderGraph;
+        
+        basePassRenderer->render(&camera, renderGraph);
 
-
+        renderGraph.execute(openGLRenderContext);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
