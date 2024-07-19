@@ -1,1 +1,1 @@
-cmake生成工程： cmake -G "Visual Studio 16 2019" -A x64 -S . -B ./build
+cmake生成工程： 鼠标双击build_project.bat
