@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #include <assimp/camera.h>
-#include <assimp/model.h>
+#include <assimp/mesh.h>
 
 using namespace realtimerenderingengine;
 
