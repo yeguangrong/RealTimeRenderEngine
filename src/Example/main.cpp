@@ -17,6 +17,9 @@
 #include "Windows.h"
 #include <windows.h>
 
+#include <assimp/camera.h>
+#include <assimp/model.h>
+
 using namespace realtimerenderingengine;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -84,6 +87,8 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
     OpenGLRenderContext* openGLRenderContext = new OpenGLRenderContext();
 
     BasePassRenderer* basePassRenderer = new BasePassRenderer;
+
+    Model ourModel(FileSystem::getPath("resources/objects/nanosuit/nanosuit.obj"));
 
     // render loop
     // -----------
