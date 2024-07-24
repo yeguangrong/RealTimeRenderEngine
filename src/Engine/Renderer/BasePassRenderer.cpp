@@ -13,6 +13,9 @@ NAMESPACE_START
 
 BasePassRenderer::BasePassRenderer() {
 
+    depthStencilState.depthTest = true;
+
+
     lightingShader = new Shader(Vertbasic_lighting, Fragbasic_lighting);
     lightingShader->ref();
     
@@ -47,7 +50,7 @@ BasePassRenderer::BasePassRenderer() {
     glEnableVertexAttribArray(0);
 
     // -----------------------------
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
 }
 
 void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
@@ -60,8 +63,9 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
         // render
            // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderContext->setDepthStencilState(depthStencilState);
+        renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
        
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader->use();
@@ -80,8 +84,8 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         lightingShader->setMat4("model", model);
        
         // render the cube
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        renderContext->bindVertexBuffer(cubeVAO);
+        renderContext->drawArrays(0, 36);
        
         // also draw the lamp object
         lightCubeShader->use();
@@ -92,8 +96,8 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
         lightCubeShader->setMat4("model", model);
        
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        renderContext->bindVertexBuffer(lightCubeVAO);
+        renderContext->drawArrays(0, 36);
     
     });
 }

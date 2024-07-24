@@ -2,6 +2,8 @@
 
 #include<Base/Constants.h>
 
+#include<RHI/RenderContext.h>
+
 class RenderGraph;
 
 NAMESPACE_START
@@ -20,6 +22,8 @@ NAMESPACE_START
     private:
         Shader* lightingShader = nullptr;
         Shader* lightCubeShader = nullptr;
+
+        DepthStencilState depthStencilState;
 
         unsigned int VBO, cubeVAO;
         unsigned int lightCubeVAO;
