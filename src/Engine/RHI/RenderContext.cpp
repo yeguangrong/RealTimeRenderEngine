@@ -3,4 +3,6 @@
 
 NAMESPACE_START
 
+RenderContext * RenderContext::instance = nullptr;
+
 NAMESPACE_END

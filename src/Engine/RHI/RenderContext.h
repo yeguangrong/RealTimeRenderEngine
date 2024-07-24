@@ -1,6 +1,7 @@
 #pragma once
 
 #include<Base/Constants.h>
+#include <mutex>
 
 NAMESPACE_START
 
@@ -13,9 +14,21 @@ struct DepthStencilState {
 
 class RenderContext
 {
+
+protected:
+    static RenderContext* instance;
+    RenderContext() {};
+
 public:
 
-    RenderContext() {};
+    void setCurrentRenderContext(RenderContext* renderContext) {
+        instance = renderContext;
+    };
+
+    static RenderContext* getInstance() {
+        return instance;
+    }
+
 
     virtual void setClearColor(float r, float g, float b, float a) = 0;
 

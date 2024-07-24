@@ -5,7 +5,7 @@
 NAMESPACE_START
 
 OpenGLRenderContext::OpenGLRenderContext(){
-
+    this->setCurrentRenderContext(this);
 }
 
 unsigned int OpenGLRenderContext::createVertexBuffer(const void* data, int sizeInByte) {
@@ -71,7 +71,7 @@ void OpenGLRenderContext::bindVertexBuffer(unsigned int bufferID) {
 }
 
 OpenGLRenderContext::~OpenGLRenderContext() {
-
+    this->setCurrentRenderContext(nullptr);
 }
 
 NAMESPACE_END

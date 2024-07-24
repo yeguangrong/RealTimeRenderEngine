@@ -15,12 +15,29 @@ BasePassRenderer::BasePassRenderer() {
 
     depthStencilState.depthTest = true;
 
+    RenderContext* renderContext = RenderContext::getInstance();
+    if (!renderContext) {
+        return;
+    }
 
     lightingShader = new Shader(Vertbasic_lighting, Fragbasic_lighting);
     lightingShader->ref();
     
     lightCubeShader = new Shader(Vertlight_cube, Fraglight_cube);
     lightCubeShader->ref();
+
+    if (!VBO) {
+        VBO = renderContext->createVertexBuffer(vertices, sizeof(vertices));
+    }
+    if (!cubeVAO) {
+        cubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
+        renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 0, 0);
+        renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 1, 3);
+    }
+    if (!lightCubeVAO) {
+        lightCubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
+        renderContext->setUpVertexBufferLayoutInfo(VBO, lightCubeVAO, 3, 6 * sizeof(float), 0, 0);
+    }
     
 }
 
@@ -30,19 +47,6 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
     
     rg.addPass(passName, camera,
         [this, camera](RenderContext * renderContext) {
-
-        if (!VBO) {
-            VBO = renderContext->createVertexBuffer(vertices, sizeof(vertices));
-        }
-       if (!cubeVAO) {
-           cubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
-           renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 0, 0);
-           renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 1, 3);
-        }
-       if (!lightCubeVAO) {
-           lightCubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
-           renderContext->setUpVertexBufferLayoutInfo(VBO, lightCubeVAO, 3, 6 * sizeof(float), 0, 0);
-       }
         
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
         // render
