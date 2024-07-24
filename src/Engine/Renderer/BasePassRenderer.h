@@ -25,8 +25,8 @@ NAMESPACE_START
 
         DepthStencilState depthStencilState;
 
-        unsigned int VBO, cubeVAO;
-        unsigned int lightCubeVAO;
+        unsigned int VBO = 0, cubeVAO = 0;
+        unsigned int lightCubeVAO = 0;
         const unsigned int SCR_WIDTH = 800;
         const unsigned int SCR_HEIGHT = 600;
 

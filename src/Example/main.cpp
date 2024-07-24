@@ -88,8 +88,6 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
     BasePassRenderer* basePassRenderer = new BasePassRenderer;
 
-    Model ourModel(FileSystem::getPath("resources/objects/nanosuit/nanosuit.obj"));
-
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))

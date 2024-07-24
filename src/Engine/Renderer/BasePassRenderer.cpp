@@ -22,35 +22,6 @@ BasePassRenderer::BasePassRenderer() {
     lightCubeShader = new Shader(Vertlight_cube, Fraglight_cube);
     lightCubeShader->ref();
     
-    // first, configure the cube's VAO (and VBO)
-    
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &VBO);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-    glBindVertexArray(cubeVAO);
-    
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    
-    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-    
-    glGenVertexArrays(1, &lightCubeVAO);
-    glBindVertexArray(lightCubeVAO);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // -----------------------------
-    //glEnable(GL_DEPTH_TEST);
 }
 
 void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
@@ -59,6 +30,19 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
     
     rg.addPass(passName, camera,
         [this, camera](RenderContext * renderContext) {
+
+        if (!VBO) {
+            VBO = renderContext->createVertexBuffer(vertices, sizeof(vertices));
+        }
+       if (!cubeVAO) {
+           cubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
+           renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 0, 0);
+           renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 1, 3);
+        }
+       if (!lightCubeVAO) {
+           lightCubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
+           renderContext->setUpVertexBufferLayoutInfo(VBO, lightCubeVAO, 3, 6 * sizeof(float), 0, 0);
+       }
         
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
         // render

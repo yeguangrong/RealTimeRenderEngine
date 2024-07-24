@@ -19,9 +19,13 @@ public:
 
     virtual void setDepthStencilState(const DepthStencilState& depthStencilState) override;
 
-    virtual void setClearAction(unsigned int action) override;
+    virtual unsigned int createVertexBuffer(const void* data, int sizeInByte) override;
 
-    virtual void setClearColor(float r, float g, float b, float a) override;
+    virtual unsigned int createVertexBufferLayoutInfo(unsigned int vertexBufferID) override;
+
+    virtual void setUpVertexBufferLayoutInfo(unsigned int vertexBufferID, unsigned int vertexBufferLayoutID, int size, int stride, int location, int offset = 0) override;
+
+    virtual void setClearAction(unsigned int action) override;
 
     virtual void setShader(Shader* shader) override;
 
