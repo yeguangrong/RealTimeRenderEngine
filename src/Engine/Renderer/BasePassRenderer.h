@@ -1,6 +1,7 @@
 #pragma once
 
 #include<Base/Constants.h>
+#include<Base/TRefCountPtr.h>
 
 #include<RHI/RenderContext.h>
 
@@ -20,8 +21,11 @@ NAMESPACE_START
         virtual void render(Camera * camera, RenderGraph & rg);
 
     private:
-        Shader* lightingShader = nullptr;
-        Shader* lightCubeShader = nullptr;
+
+        TRefCountPtr<Shader> lightingShader;
+        TRefCountPtr<Shader> lightingShader2;
+        TRefCountPtr<Shader> lightCubeShader;
+
 
         DepthStencilState depthStencilState;
 

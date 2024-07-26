@@ -12,13 +12,7 @@ NAMESPACE_START
         Object();
         virtual ~Object();
 
-        virtual bool ref();
-        virtual bool unref();
-        int getRefCount();
 
-    private:
-
-        int _refCount = 0;
     };
 
 

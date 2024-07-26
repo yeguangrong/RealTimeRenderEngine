@@ -114,6 +114,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
     }
 
 
+    delete basePassRenderer;
     delete openGLRenderContext;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
