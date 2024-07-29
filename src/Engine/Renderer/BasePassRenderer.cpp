@@ -2,6 +2,7 @@
 #include"Base/ShaderCode.h"
 #include"Base/Shader.h"
 #include"Base/Camera.h"
+#include"Base/Mesh.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -46,27 +47,18 @@ BasePassRenderer::BasePassRenderer() {
 
     depthStencilState.depthTest = true;
 
-    RenderContext* renderContext = RenderContext::getInstance();
-    if (!renderContext) {
-        return;
-    }
+    mesh = new Mesh();
+    glm::vec3* vertex = new glm::vec3[3]{ glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f) , glm::vec3(0.5f,  0.5f, -0.5f) };
+    glm::vec3* normal = new glm::vec3[3]{ glm::vec3(0.0f,  0.0f, 1.0f), glm::vec3(0.0f,  0.0f, 1.0f) , glm::vec3(0.0f,  0.0f, 1.0f) };
+
+    mesh->createVertextBuffer(3, vertex, normal, nullptr);
+
+    unsigned int* indices = new unsigned int[3]{ 0,1,2 };//只有一个三角形
+    mesh->createTriangleIndexBuffer(1, indices);
 
     lightingShader = TRefCountPtr<Shader>(new Shader(Vertbasic_lighting, Fragbasic_lighting));
 
     lightCubeShader = TRefCountPtr<Shader>(new Shader(Vertlight_cube, Fraglight_cube));
-
-    if (!VBO) {
-        VBO = renderContext->createVertexBuffer(vertices, sizeof(vertices));
-    }
-    if (!cubeVAO) {
-        cubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
-        renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 0, 0);
-        renderContext->setUpVertexBufferLayoutInfo(VBO, cubeVAO, 3, 6 * sizeof(float), 1, 3);
-    }
-    if (!lightCubeVAO) {
-        lightCubeVAO = renderContext->createVertexBufferLayoutInfo(VBO);
-        renderContext->setUpVertexBufferLayoutInfo(VBO, lightCubeVAO, 3, 6 * sizeof(float), 0, 0);
-    }
     
 }
 
@@ -101,29 +93,19 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         lightingShader.getPtr()->setMat4("model", model);
        
         // render the cube
-        renderContext->bindVertexBuffer(cubeVAO);
-        renderContext->drawArrays(0, 36);
-       
-        // also draw the lamp object
-        lightCubeShader.getPtr()->use();
-        lightCubeShader.getPtr()->setMat4("projection", projection);
-        lightCubeShader.getPtr()->setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightCubeShader.getPtr()->setMat4("model", model);
-       
-        renderContext->bindVertexBuffer(lightCubeVAO);
-        renderContext->drawArrays(0, 36);
+
+        renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
+
+        renderContext->bindIndexBuffer(mesh->indexBufferID);
+        //renderContext->drawArrays(0, 3);
+        renderContext->drawElements(mesh->numTriangle * 3, 0);
     
     });
 }
 
 BasePassRenderer::~BasePassRenderer() {
     
-    glDeleteVertexArrays(1, &cubeVAO);
-    glDeleteVertexArrays(1, &lightCubeVAO);
-    glDeleteBuffers(1, &VBO);
+
 }
 
 NAMESPACE_END

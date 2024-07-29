@@ -8,6 +8,46 @@ OpenGLRenderContext::OpenGLRenderContext(){
     this->setCurrentRenderContext(this);
 }
 
+Texture2D* OpenGLRenderContext::createTexture2D(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height) {
+
+    //Texture2D* texture2D = new Texture2D(usage, textureFormat, width, height);
+    //
+    //return texture2D;
+
+    return nullptr;
+}
+
+FrameBuffer OpenGLRenderContext::createFrameBuffer() {
+
+    unsigned id = 0;
+    glGenFramebuffers(1, &id);
+
+    return FrameBuffer{ id, nullptr, nullptr};
+}
+
+void OpenGLRenderContext::beginRendering(const FrameBuffer& fbo) {
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+}
+
+void OpenGLRenderContext::endRendering() {
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OpenGLRenderContext::bindIndexBuffer(unsigned int bufferID) {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferID);
+}
+
+unsigned int OpenGLRenderContext::createIndexBuffer(const void* data, int sizeInByte) {
+    unsigned int bufferID;
+    glGenBuffers(1, &bufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInByte, data, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    return bufferID;
+}
+
 unsigned int OpenGLRenderContext::createVertexBuffer(const void* data, int sizeInByte) {
 
     unsigned int bufferID;
@@ -33,16 +73,23 @@ unsigned int OpenGLRenderContext::createVertexBufferLayoutInfo(unsigned int vert
 void OpenGLRenderContext::setUpVertexBufferLayoutInfo(unsigned int vertexBufferID, unsigned int vertexBufferLayoutID, int size, int stride, int location, int offset) {
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-    glBindVertexArray(vertexBufferLayoutID);
+    if (vertexBufferLayoutID > 0) {
+        glBindVertexArray(vertexBufferLayoutID);
+    }
 
     // position attribute
-    glVertexAttribPointer(location, size, GL_FLOAT, GL_FALSE, stride, (void*)(offset * sizeof(float)));
     glEnableVertexAttribArray(location);
+    glVertexAttribPointer(location, size, GL_FLOAT, GL_FALSE, stride, (void*)(offset * sizeof(float)));
 }
 
 void OpenGLRenderContext::drawArrays(int first, int numVertex) {
 
     glDrawArrays(GL_TRIANGLES, first, numVertex);
+}
+
+void OpenGLRenderContext::drawElements(unsigned int count, const void* indices) {
+
+    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, indices);
 }
 
 void OpenGLRenderContext::setDepthStencilState(const DepthStencilState& depthStencilState) {
