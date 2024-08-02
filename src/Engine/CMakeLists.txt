@@ -42,4 +42,7 @@ include_directories("${stb_image_INCLUDE_DIRS}")
 find_package(glm)
 include_directories("${glm_INCLUDE_DIRS}")
 
+find_package(assimp)
+include_directories("${assimp_INCLUDE_DIRS}")
+
 target_link_libraries(engine ${glad_LIBRARIES})

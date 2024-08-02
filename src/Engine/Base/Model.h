@@ -8,9 +8,9 @@
 #include"Texture.h"
 #include"Mesh.h"
 #include"Shader.h"
-#include "../../3rdparty/assimp/include/assimp/Importer.hpp"
-#include "../../3rdparty/assimp/include/assimp/scene.h"
-#include "../../3rdparty/assimp/include/assimp/postprocess.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 using namespace std;
 
 NAMESPACE_START
