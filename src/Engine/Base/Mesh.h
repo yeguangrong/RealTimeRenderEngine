@@ -1,6 +1,8 @@
 #pragma once
 
 #include"Constants.h"
+#include<vector>
+#include"Texture.h"
 
 #include<glm/vec3.hpp>
 #include<glm/vec2.hpp>
@@ -28,6 +30,9 @@ NAMESPACE_START
             // tangent
             glm::vec3 tangent;
         };
+
+        vector<Texture>      textures;
+        
 
         unsigned int numVertex = 0;
         Vertex * vertices = nullptr;

@@ -5,7 +5,6 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include"Texture.h"
 #include"Mesh.h"
 #include"Shader.h"
 #include <assimp/Importer.hpp>
@@ -20,7 +19,6 @@ public:
     std::vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;
-
 
     Model(string const& path, bool gamma = false);
     ~Model();

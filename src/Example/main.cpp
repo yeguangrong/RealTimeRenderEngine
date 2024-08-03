@@ -9,6 +9,7 @@
 #include <Engine/RHI/OpenGL/OpenGLRenderContext.h>
 #include<Engine/Renderer/RenderGraph/RenderGraph.h>
 #include<Engine/Renderer/BasePassRenderer.h>
+#include<Engine/Renderer/MeshRenderer.h>
 
 #include <iostream>
 
@@ -86,7 +87,9 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
     OpenGLRenderContext* openGLRenderContext = new OpenGLRenderContext();
 
-    BasePassRenderer* basePassRenderer = new BasePassRenderer;
+    //BasePassRenderer* basePassRenderer = new BasePassRenderer;
+
+    MeshRenderer* meshRenderer = new MeshRenderer("../../resources/objects/nanosuit/nanosuit.obj");
 
     // render loop
     // -----------
@@ -104,7 +107,8 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
         RenderGraph renderGraph;
         
-        basePassRenderer->render(&camera, renderGraph);
+        //basePassRenderer->render(&camera, renderGraph);
+        meshRenderer->render(&camera, renderGraph);
 
         renderGraph.execute(openGLRenderContext);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -113,8 +117,8 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
         glfwPollEvents();
     }
 
-
-    delete basePassRenderer;
+    //delete basePassRenderer;
+    delete meshRenderer;
     delete openGLRenderContext;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.

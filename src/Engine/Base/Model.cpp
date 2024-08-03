@@ -6,7 +6,9 @@ Model::Model(string const& path, bool gamma ) : gammaCorrection(gamma)
 {
     loadModel(path);
 }
+Model::~Model() {
 
+}
 
 void Model::loadModel(string const& path)
 {
