@@ -15,8 +15,8 @@ using namespace std;
 NAMESPACE_START
 class Model {
 public:
-    std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-    std::vector<Mesh>    meshes;
+ 
+    std::vector<Mesh*>   meshes;
     string directory;
     bool gammaCorrection;
 
@@ -26,7 +26,7 @@ public:
 private:
     void loadModel(const std::string& path);
     void processNode(aiNode* node, const aiScene* scene);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
     unsigned int TextureFromFile(const char* path, const string& directory, bool gamma);
 };

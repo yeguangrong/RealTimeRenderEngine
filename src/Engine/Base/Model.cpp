@@ -46,7 +46,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     // data to fill
     vector<Mesh::Vertex> vertices;
@@ -127,8 +127,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     // return a mesh object created from the extracted mesh data
-    Mesh newMesh;
-    unsigned int numVertices = static_cast<unsigned int>(vertices.size());
+    Mesh* newMesh = new Mesh();
+    unsigned int numVertices = (unsigned int)(vertices.size());
 
     // 提取  position 指针 
     glm::vec3* positionPtr = reinterpret_cast<glm::vec3*>(vertices.data());
@@ -140,44 +140,44 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     glm::vec2* uvPtr = reinterpret_cast<glm::vec2*>(vertices.data() + offsetof(Mesh::Vertex, uv) / sizeof(Mesh::Vertex));
 
     // 调用 createVertextBuffer
-    newMesh.createVertextBuffer(numVertices, positionPtr, normalPtr, uvPtr);
-    newMesh.createTriangleIndexBuffer(static_cast<unsigned int>(indices.size() / 3), indices.data());
+    newMesh->createVertextBuffer(numVertices, positionPtr, normalPtr, uvPtr);
+    newMesh->createTriangleIndexBuffer((unsigned int)(indices.size() / 3), indices.data());
     return newMesh;
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
 // the required info is returned as a Texture struct.
 
-vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
-{
-    vector<Texture> textures;
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-    {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-        bool skip = false;
-        for (unsigned int j = 0; j < textures_loaded.size(); j++)
-        {
-            if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
-            {
-                textures.push_back(textures_loaded[j]);
-                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-                break;
-            }
-        }
-        if (!skip)
-        {   // if texture hasn't been loaded already, load it
-            Texture texture;
-            texture.id = TextureFromFile(str.C_Str(), this->directory, this->gammaCorrection);
-            texture.type = typeName;
-            texture.path = str.C_Str();
-            textures.push_back(texture);
-            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
-        }
-    }
-    return textures;
-}
+//vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
+//{
+//    vector<Texture> textures;
+//    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+//    {
+//        aiString str;
+//        mat->GetTexture(type, i, &str);
+//        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+//        bool skip = false;
+//        for (unsigned int j = 0; j < textures_loaded.size(); j++)
+//        {
+//            if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+//            {
+//                textures.push_back(textures_loaded[j]);
+//                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+//                break;
+//            }
+//        }
+//        if (!skip)
+//        {   // if texture hasn't been loaded already, load it
+//            Texture texture;
+//            texture.id = TextureFromFile(str.C_Str(), this->directory, this->gammaCorrection);
+//            texture.type = typeName;
+//            texture.path = str.C_Str();
+//            textures.push_back(texture);
+//            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+//        }
+//    }
+//    return textures;
+//}
 
 
 
