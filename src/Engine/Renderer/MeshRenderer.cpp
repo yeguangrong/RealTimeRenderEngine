@@ -36,17 +36,17 @@ void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
         lightingShader.getPtr()->setMat4("model", model);
 
 
-        for (const Mesh& mesh : modelSample->meshes) {
+        for (const Mesh* mesh : modelSample->meshes) {
             unsigned int diffuseNr = 1;
             unsigned int specularNr = 1;
             unsigned int normalNr = 1;
             unsigned int heightNr = 1;
-            for (unsigned int i = 0; i < mesh.textures.size(); i++)
+            for (unsigned int i = 0; i < mesh->textures.size(); i++)
             {
                 glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
                 // retrieve texture number (the N in diffuse_textureN)
                 string number;
-                string name = mesh.textures[i].type;
+                string name = mesh->textures[i].type;
                 if (name == "texture_diffuse")
                     number = std::to_string(diffuseNr++);
                 else if (name == "texture_specular")
@@ -59,13 +59,13 @@ void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
                 // now set the sampler to the correct texture unit
                 glUniform1i(glGetUniformLocation(lightingShader.getPtr()->ID, (name + number).c_str()), i);
                 // and finally bind the texture
-                glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id);
+                glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
             }
-            renderContext->bindVertexBuffer(mesh.vertexAttributeBufferID);
-            renderContext->bindIndexBuffer(mesh.indexBufferID);
+            renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
+            renderContext->bindIndexBuffer(mesh->indexBufferID);
 
-            for (unsigned int i = 0; i < mesh.numTriangle; i++) {
-                renderContext->drawElements(mesh.numTriangle * 3, 0);
+            for (unsigned int i = 0; i < mesh->numTriangle; i++) {
+                renderContext->drawElements(mesh->numTriangle * 3, 0);
             }
             renderContext->bindVertexBuffer(0);
             renderContext->bindIndexBuffer(0);
