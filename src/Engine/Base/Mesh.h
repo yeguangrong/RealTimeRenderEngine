@@ -31,7 +31,7 @@ NAMESPACE_START
             glm::vec3 tangent;
         };
 
-        vector<Texture>      textures;
+        //vector<Texture>      textures;
         
 
         unsigned int numVertex = 0;
