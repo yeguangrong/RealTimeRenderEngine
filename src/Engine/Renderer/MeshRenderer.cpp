@@ -12,9 +12,8 @@ NAMESPACE_START
 MeshRenderer::MeshRenderer(const std::string& modelPath) {
     depthStencilState.depthTest = true;
     modelSample = new Model(modelPath);
-    lightingShader = TRefCountPtr<Shader>(new Shader(Vertmodel_lighting, Fragmodel_lighting));
-
-    //lightCubeShader = TRefCountPtr<Shader>(new Shader(Vertlight_cube, Fraglight_cube));
+ 
+    lightingShader = TRefCountPtr<Shader>(new Shader(Vertmodel_lighting , Fragmodel_lighting));
 }
 
 void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
@@ -65,7 +64,7 @@ void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
             //}
             renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
             renderContext->bindIndexBuffer(mesh->indexBufferID);
-
+            
             renderContext->drawElements(mesh->numTriangle * 3, 0);
          
             renderContext->bindVertexBuffer(0);

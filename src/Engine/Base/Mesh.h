@@ -2,7 +2,6 @@
 
 #include"Constants.h"
 #include<vector>
-#include"Texture.h"
 
 #include<glm/vec3.hpp>
 #include<glm/vec2.hpp>

@@ -49,42 +49,44 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     // data to fill
-    vector<Mesh::Vertex> vertices;
+    //vector<Mesh::Vertex> vertices,
+    vector<glm::vec3> vertices; 
+    vector<glm::vec3> normals; 
+    vector<glm::vec2> uvs;
     vector<unsigned int> indices;
-    vector<Texture> textures;
+    //vector<Texture> textures;
 
     // walk through each of the mesh's vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Mesh::Vertex vertex;
-        glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+        glm::vec3 position; 
         // positions
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
-        vertex.position = vector;
+        position.x = mesh->mVertices[i].x;
+        position.y = mesh->mVertices[i].y;
+        position.z = mesh->mVertices[i].z;
+        vertices.push_back(position);
         // normals
         if (mesh->HasNormals())
         {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal = vector;
+            glm::vec3 normal;
+            normal.x = mesh->mNormals[i].x;
+            normal.y = mesh->mNormals[i].y;
+            normal.z = mesh->mNormals[i].z;
+            normals.push_back(normal);
         }
         // texture coordinates
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
-            glm::vec2 vec;
-            // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
-            // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-            vec.x = mesh->mTextureCoords[0][i].x;
-            vec.y = mesh->mTextureCoords[0][i].y;
-            vertex.uv = vec;
+            glm::vec2 uv;
+            uv.x = mesh->mTextureCoords[0][i].x;
+            uv.y = mesh->mTextureCoords[0][i].y;
+            uvs.push_back(uv);
             // tangent
-            vector.x = mesh->mTangents[i].x;
+           /* vector.x = mesh->mTangents[i].x;
             vector.y = mesh->mTangents[i].y;
             vector.z = mesh->mTangents[i].z;
-            vertex.tangent = vector;
+            vertex.tangent = vector;*/
             // bitangent
             /*vector.x = mesh->mBitangents[i].x;
             vector.y = mesh->mBitangents[i].y;
@@ -94,7 +96,6 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
         else
             vertex.uv = glm::vec2(0.0f, 0.0f);
 
-        vertices.push_back(vertex);
     }
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -129,15 +130,15 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // return a mesh object created from the extracted mesh data
     Mesh* newMesh = new Mesh();
     unsigned int numVertices = (unsigned int)(vertices.size());
+    // get  ‘position’  pointer 
+    glm::vec3* positionPtr = vertices.data();
 
-    // 提取  position 指针 
-    glm::vec3* positionPtr = reinterpret_cast<glm::vec3*>(vertices.data());
+    // get  ‘normal’  pointer
+    glm::vec3* normalPtr = normals.data();
 
-    // 提取  normal  指针
-    glm::vec3* normalPtr = reinterpret_cast<glm::vec3*>(vertices.data() + offsetof(Mesh::Vertex, normal) / sizeof(Mesh::Vertex));
-
-    // 提取  uv  指针
-    glm::vec2* uvPtr = reinterpret_cast<glm::vec2*>(vertices.data() + offsetof(Mesh::Vertex, uv) / sizeof(Mesh::Vertex));
+    // get  ‘uv’  pointer
+    glm::vec2* uvPtr = uvs.data();
+ 
 
     // 调用 createVertextBuffer
     newMesh->createVertextBuffer(numVertices, positionPtr, normalPtr, uvPtr);
@@ -147,7 +148,7 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
 // the required info is returned as a Texture struct.
-//
+
 //vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
 //{
 //    vector<Texture> textures;
@@ -180,7 +181,7 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 //}
 
 
-//
+
 //unsigned int Model::TextureFromFile(const char* path, const string& directory, bool gamma)
 //{
 //    string filename = string(path);
@@ -220,6 +221,6 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 //
 //    return textureID;
 //}
-
+//
 
 NAMESPACE_END

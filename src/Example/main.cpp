@@ -89,7 +89,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
     //BasePassRenderer* basePassRenderer = new BasePassRenderer;
 
-    MeshRenderer* meshRenderer = new MeshRenderer("../../resources/objects/nanosuit/nanosuit.obj");
+    MeshRenderer* meshRenderer = new MeshRenderer("E:/learnRenderC++/resources/objects/nanosuit/nanosuit.obj");
 
     // render loop
     // -----------
