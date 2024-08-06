@@ -17,6 +17,7 @@ void Mesh::createVertextBuffer(unsigned int numVertex, glm::vec3* position, glm:
 	for (int i = 0; i < numVertex;i++) {
 		this->vertices[i].position = position[i];
 		this->vertices[i].normal = normal[i];
+		this->vertices[i].uv = uv[i];
 	}
 
 	if (!vertexBufferID) {
@@ -30,6 +31,9 @@ void Mesh::createVertextBuffer(unsigned int numVertex, glm::vec3* position, glm:
 
 		//normal
 		renderContext->setUpVertexBufferLayoutInfo(vertexBufferID, vertexAttributeBufferID, 3, sizeof(Vertex), 1, 3);
+
+		//uv
+		renderContext->setUpVertexBufferLayoutInfo(vertexBufferID, vertexAttributeBufferID, 2, sizeof(Vertex), 2, 6);
 	}
 
 	//// create buffers/arrays

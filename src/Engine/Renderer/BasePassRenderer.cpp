@@ -26,23 +26,6 @@ struct has_preRead {
     };
 };
 
-//template <typename T>
-//struct has_preRead {
-//    template <typename U>
-//    static constexpr std::false_type test(...) {
-//        return {};
-//    }
-//    template <typename U>
-//    static constexpr auto test(U* u) ->
-//        typename std::is_same<void,
-//        decltype(u->preRead(typename T::Desc{}, 0u,
-//            std::declval<void*>())) > ::type {
-//        return {};
-//    }
-//
-//    static constexpr bool value{ test<T>(nullptr) };
-//};
-
 BasePassRenderer::BasePassRenderer() {
 
     depthStencilState.depthTest = true;
@@ -50,22 +33,24 @@ BasePassRenderer::BasePassRenderer() {
     mesh = new Mesh();
     glm::vec3* vertex = new glm::vec3[3]{ glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f) , glm::vec3(0.5f,  0.5f, -0.5f) };
     glm::vec3* normal = new glm::vec3[3]{ glm::vec3(0.0f,  0.0f, 1.0f), glm::vec3(0.0f,  0.0f, 1.0f) , glm::vec3(0.0f,  0.0f, 1.0f) };
+    glm::vec2* uv = new glm::vec2[3]{ glm::vec2(0.0f,  0.0f), glm::vec2(1.0f,  0.0f) , glm::vec2(1.0f,  1.0f) };
 
-    mesh->createVertextBuffer(3, vertex, normal, nullptr);
+    mesh->createVertextBuffer(3, vertex, normal, uv);
 
     unsigned int* indices = new unsigned int[3]{ 0,1,2 };//只有一个三角形
     mesh->createTriangleIndexBuffer(1, indices);
 
     lightingShader = TRefCountPtr<Shader>(new Shader(Vertbasic_lighting, Fragbasic_lighting));
 
-    lightCubeShader = TRefCountPtr<Shader>(new Shader(Vertlight_cube, Fraglight_cube));
+    baseTexture = RenderContext::getInstance()->loadTexture2D("F:/RealTimeRenderEngineLatest/resources/textures/awesomeface.png");
+    normalTexture = RenderContext::getInstance()->loadTexture2D("F:/RealTimeRenderEngineLatest/resources/textures/brickwall_normal.jpg");
     
 }
 
 void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
 
     const char* passName = "basePass";
-    
+
     rg.addPass(passName, camera,
         [this, camera](RenderContext * renderContext) {
         
@@ -75,13 +60,18 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         renderContext->setDepthStencilState(depthStencilState);
         renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       
+        int errorCode = glGetError();
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.getPtr()->use();
+
+        errorCode = glGetError();
+
         lightingShader.getPtr()->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+
         lightingShader.getPtr()->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
         lightingShader.getPtr()->setVec3("lightPos", lightPos);
-       
+  
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera->GetViewMatrix();
@@ -91,7 +81,14 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
         lightingShader.getPtr()->setMat4("model", model);
+
+        lightingShader.getPtr()->setInt("baseTexture", 0);
+        lightingShader.getPtr()->setInt("normalTexture", 1);
+        
+        renderContext->bindTexture(baseTexture->id, 0);
+        renderContext->bindTexture(normalTexture->id, 1);
        
+        errorCode = glGetError();
         // render the cube
 
         renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
@@ -105,7 +102,17 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
 
 BasePassRenderer::~BasePassRenderer() {
     
+    if (baseTexture) {
+        delete baseTexture;
+    }
+    baseTexture = nullptr;
 
+    if (normalTexture) {
+        delete normalTexture;
+    }
+    normalTexture = nullptr;
+
+    
 }
 
 NAMESPACE_END

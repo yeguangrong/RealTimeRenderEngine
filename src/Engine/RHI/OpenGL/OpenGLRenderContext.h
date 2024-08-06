@@ -14,7 +14,8 @@ public:
     OpenGLRenderContext();
 
     virtual Texture2D* createTexture2D(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height) override;
-
+    virtual Texture2D* loadTexture2D(const char* path) override;
+    virtual void bindTexture(unsigned int bufferID, unsigned int bindingIndex) override;
     virtual FrameBuffer createFrameBuffer() override;
 
     virtual void beginRendering(const FrameBuffer& fbo) override;

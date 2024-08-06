@@ -38,6 +38,10 @@ public:
 
     virtual Texture2D * createTexture2D(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height) = 0;
 
+    virtual Texture2D * loadTexture2D(const char* path) = 0;
+
+    virtual void bindTexture(unsigned int bufferID, unsigned int bindingIndex) = 0;
+
     virtual FrameBuffer createFrameBuffer() = 0;
 
     virtual void beginRendering(const FrameBuffer & fbo) = 0;

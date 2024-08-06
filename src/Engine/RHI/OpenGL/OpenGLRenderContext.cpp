@@ -1,5 +1,6 @@
 #include"OpenGLRenderContext.h"
 #include <glad.h>
+#include<Base/Texture2D.h>
 
 
 NAMESPACE_START
@@ -10,11 +11,21 @@ OpenGLRenderContext::OpenGLRenderContext(){
 
 Texture2D* OpenGLRenderContext::createTexture2D(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height) {
 
-    //Texture2D* texture2D = new Texture2D(usage, textureFormat, width, height);
-    //
-    //return texture2D;
+    Texture2D* texture2D = new Texture2D(usage, textureFormat, width, height);
+    
+    return texture2D;
+}
 
-    return nullptr;
+Texture2D * OpenGLRenderContext::loadTexture2D(const char* path) {
+
+    Texture2D* texture2D = new Texture2D(path);
+
+    return texture2D;
+}
+
+void OpenGLRenderContext::bindTexture(unsigned int bufferID, unsigned int bindingIndex) {
+    glActiveTexture(GL_TEXTURE0 + bindingIndex);
+    glBindTexture(GL_TEXTURE_2D, bufferID);
 }
 
 FrameBuffer OpenGLRenderContext::createFrameBuffer() {

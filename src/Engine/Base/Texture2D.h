@@ -9,6 +9,10 @@ enum TextureFormat
 {
     RGBA,
     RGBA32F,
+    RGB,
+    RG,
+    R,
+    GRAY,
     Depth24_Stencil8
 };
 
@@ -97,7 +101,7 @@ class Texture2D : public Object
 {
 public:
 
-    unsigned int id;
+    unsigned int id = -1;
 
     unsigned int width = 0;
     unsigned int height = 0;
@@ -108,9 +112,11 @@ public:
 
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-    Texture2D(const char* path) {};
+    Texture2D(const char* path);
 
-    Texture2D(const TextureUsage & usage, const TextureFormat & textureFormat, const int width, const int height);
+    Texture2D(const TextureUsage & usage, const TextureFormat & textureFormat, const int width, const int height, const unsigned char* data = nullptr);
+
+    void initTexture(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height, const unsigned char* data = nullptr);
 
     ~Texture2D();
 

@@ -24,8 +24,9 @@ NAMESPACE_START
     private:
 
         TRefCountPtr<Shader> lightingShader;
-        TRefCountPtr<Shader> lightingShader2;
-        TRefCountPtr<Shader> lightCubeShader;
+
+        Texture2D* baseTexture = nullptr;
+        Texture2D* normalTexture = nullptr;
 
 
         DepthStencilState depthStencilState;
