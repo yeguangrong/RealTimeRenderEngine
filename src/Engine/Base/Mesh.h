@@ -5,6 +5,7 @@
 
 #include<glm/vec3.hpp>
 #include<glm/vec2.hpp>
+#include<string>
 
 NAMESPACE_START
 
@@ -30,9 +31,8 @@ NAMESPACE_START
             glm::vec3 tangent;
         };
 
-        //vector<Texture>      textures;
+        std::string nowName;
         
-
         unsigned int numVertex = 0;
         Vertex * vertices = nullptr;
         unsigned int vertexBufferID = 0;

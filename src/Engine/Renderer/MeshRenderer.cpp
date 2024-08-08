@@ -13,17 +13,36 @@ MeshRenderer::MeshRenderer(const std::string& modelPath) {
     depthStencilState.depthTest = true;
     modelSample = new Model(modelPath);
  
-    lightingShader = TRefCountPtr<Shader>(new Shader(Vertmodel_lighting , Fragmodel_lighting));
+    lightingShader = TRefCountPtr<Shader>(new Shader(Vertmodel_lighting, Fragmodel_lighting));
+    textureMap["Hand"] = RenderContext::getInstance()->loadTexture2D("E:/learnRenderC++/resources/objects/nanosuit/hand_dif.png");
+    textureMap["Glass"] = RenderContext::getInstance()->loadTexture2D("E:/learnRenderC++/resources/objects/nanosuit/glass_dif.png");
+    textureMap["Body"] = RenderContext::getInstance()->loadTexture2D("E:/learnRenderC++/resources/objects/nanosuit/body_dif.png");
+    textureMap["Helmet"] = RenderContext::getInstance()->loadTexture2D("E:/learnRenderC++/resources/objects/nanosuit/helmet_diff.png");
+    textureMap["Leg"] = RenderContext::getInstance()->loadTexture2D("E:/learnRenderC++/resources/objects/nanosuit/leg_dif.png");
+    textureMap["Arm"] = RenderContext::getInstance()->loadTexture2D("E:/learnRenderC++/resources/objects/nanosuit/arm_dif.png");
+
 }
 
 void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
     const char* passName = "modelPass";
 
     rg.addPass(passName, camera, [this, camera](RenderContext* renderContext) {
-        lightingShader.getPtr()->use();
         renderContext->setDepthStencilState(depthStencilState);
         renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        int errorCode = glGetError();
+        lightingShader.getPtr()->use();
+        errorCode = glGetError();
+        glm::vec3 lightPos(1.0f, 1.0f, 1.0f);
+       
+        float radius = 2.0f; // 设置光源旋转半径
+        lightPos.x = lightPos.x+radius * cos(time);
+        lightPos.z = lightPos.z+radius * sin(time);
+ 
+
+        lightingShader.getPtr()->setVec3("objectColor", 1.0f, 0.8f, 0.71f);
+        lightingShader.getPtr()->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.getPtr()->setVec3("lightPos", lightPos);
 
         glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         lightingShader.getPtr()->setMat4("projection", projection);
@@ -34,47 +53,39 @@ void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
         glm::mat4 model = glm::mat4(1.0f);
         lightingShader.getPtr()->setMat4("model", model);
 
-        glm::vec4 setColor = glm::vec4(1.0f,0.3f,0.4f,0.0f);
-        lightingShader.getPtr()->setVec4("setcolor", setColor);
+        lightingShader.getPtr()->setInt("baseTexture", 0);
 
         for (const Mesh* mesh : modelSample->meshes) {
-            //unsigned int diffuseNr = 1;
-            //unsigned int specularNr = 1;
-            //unsigned int normalNr = 1;
-            //unsigned int heightNr = 1;
-            //for (unsigned int i = 0; i < mesh->textures.size(); i++)
-            //{
-            //    glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-            //    // retrieve texture number (the N in diffuse_textureN)
-            //    string number;
-            //    string name = mesh->textures[i].type;
-            //    if (name == "texture_diffuse")
-            //        number = std::to_string(diffuseNr++);
-            //    else if (name == "texture_specular")
-            //        number = std::to_string(specularNr++); // transfer unsigned int to string
-            //    else if (name == "texture_normal")
-            //        number = std::to_string(normalNr++); // transfer unsigned int to string
-            //    else if (name == "texture_height")
-            //        number = std::to_string(heightNr++); // transfer unsigned int to string
-
-            //    // now set the sampler to the correct texture unit
-            //    glUniform1i(glGetUniformLocation(lightingShader.getPtr()->ID, (name + number).c_str()), i);
-            //    // and finally bind the texture
-            //    glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
-            //}
-            renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
-            renderContext->bindIndexBuffer(mesh->indexBufferID);
-            
-            renderContext->drawElements(mesh->numTriangle * 3, 0);
-         
+            Texture2D* baseTexture = textureMap["Default"];
+            if (textureMap.find(mesh->nowName) != textureMap.end()) {
+                baseTexture = textureMap[mesh->nowName];
+            }
+            else {
+                baseTexture = nullptr;
+            }
+            // 绑定纹理
+            renderContext->bindTexture(baseTexture->id, 0);
+            // 清除之前绑定的纹理和缓冲区
             renderContext->bindVertexBuffer(0);
             renderContext->bindIndexBuffer(0);
+
+            // 设置纹理和缓冲区
+            if (baseTexture) {
+                renderContext->bindTexture(baseTexture->id, 0);
+            }
+            renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
+            renderContext->bindIndexBuffer(mesh->indexBufferID);
+
+            // 渲染当前网格
+            renderContext->drawElements(mesh->numTriangle * 3, 0);
         }
-        
+        renderContext->bindVertexBuffer(0);
+        renderContext->bindIndexBuffer(0);
         });
 }
 
 MeshRenderer::~MeshRenderer() {
+  
     delete modelSample;
 }
 NAMESPACE_END
