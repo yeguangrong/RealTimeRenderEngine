@@ -3,6 +3,7 @@
 #include<Base/Constants.h>
 #include<Base/Texture2D.h>
 #include <mutex>
+#include <vector>
 
 NAMESPACE_START
 
@@ -13,10 +14,124 @@ struct DepthStencilState {
     bool depthWrite = true;
 };
 
-struct FrameBuffer {
+enum class AttachmentAction {
+    None,
+    Clear
+};
+
+struct ColorAttachment {
+    unsigned int attachment = 0;
+    Texture2D* texture = nullptr;
+    uint32_t faceIndex = 0;
+    AttachmentAction action = AttachmentAction::Clear;
+    glm::vec4 clearColor;
+};
+
+struct DepthStencilAttachment {
+    unsigned int attachment = 0;
+    Texture2D* texture = nullptr;
+    AttachmentAction action = AttachmentAction::Clear;
+    double depthClearValue = 1.0;
+    uint32_t stencilClearValue = 0;
+
+};
+
+enum class CullMode : uint32_t {
+    None,
+    Back,
+    Front
+};
+
+enum class FrontFaceDir : uint32_t {
+    CW,
+    CCW
+};
+
+enum class BlendFactor : uint32_t {
+    Zero,
+    One,
+    SrcColor,
+    OneMinusSrcColor,
+    DstColor,
+    OneMinusDstColor,
+    SrcAlpha,
+    OneMinusSrcAlpha,
+    DstAlpha,
+    OneMinusDstAlpha,
+    ConstantColor,
+    OneMinusConstantColor,
+    ConstantAlpha,
+    OneMinusConstantAlpha,
+    SrcAlphaSaturate,
+    Src1Color,
+    OneMinusSrc1Color,
+    Src1Alpha,
+    OneMinusSrc1Alpha
+};
+
+enum class BlendOp : uint32_t {
+    Add,
+    Subtract,
+    ReverseSubtract,
+    Min,
+    Max
+};
+
+struct BlendState {
+
+    bool enabled = false;
+
+    BlendFactor srcColor = BlendFactor::One;
+    BlendFactor destColor = BlendFactor::OneMinusSrcAlpha;
+    BlendOp colorOp = BlendOp::Add;
+
+    BlendFactor srcAlpha = BlendFactor::One;
+    BlendFactor destAlpha = BlendFactor::OneMinusSrcAlpha;
+    BlendOp alphaOp = BlendOp::Add;
+
+    BlendState() = default;
+    BlendState(BlendFactor srcColor, BlendFactor destColor, BlendFactor srcAlpha, BlendFactor destAlpha, BlendOp colorOp = BlendOp::Add, BlendOp alphaOp = BlendOp::Add) : enabled(true), srcColor(srcColor), destColor(destColor), colorOp(colorOp), srcAlpha(srcAlpha), destAlpha(destAlpha), alphaOp(alphaOp) {}
+};
+
+struct PipelineColorBlendAttachment {
+    uint32_t attachment = 0;
+    BlendState blendState;
+};
+
+struct PipelineColorBlendState {
+    std::vector<PipelineColorBlendAttachment> attachmentsBlendState;
+};
+
+struct PipelineRasterizationState {
+    CullMode cullMode = CullMode::Back;
+    FrontFaceDir frontFaceDir = FrontFaceDir::CCW;
+    PipelineColorBlendState blendState;
+};
+
+struct GraphicsPipeline {
+    Shader* shader = nullptr;
+    PipelineRasterizationState rasterizationState;
+};
+
+struct FrameBufferInfo {
+
     unsigned int id = 0;
-    Texture2D * colorTexture = nullptr;
-    Texture2D * depthStencilTexture = nullptr;
+    std::vector<ColorAttachment> colorAttachments;
+    DepthStencilAttachment depthStencilAttachment;
+    FrameBufferInfo& operator=(FrameBufferInfo&& other) noexcept {
+    
+        this->id = other.id;
+        this->colorAttachments.swap(other.colorAttachments);
+        this->depthStencilAttachment = other.depthStencilAttachment;
+        other.id = -1;
+        other.colorAttachments.clear();
+    
+        return *this;
+    }
+    FrameBufferInfo() {
+    }
+    ~FrameBufferInfo();
+
 };
 
 class RenderContext
@@ -42,19 +157,17 @@ public:
 
     virtual void bindTexture(unsigned int bufferID, unsigned int bindingIndex) = 0;
 
-    virtual FrameBuffer createFrameBuffer() = 0;
-
-    virtual void beginRendering(const FrameBuffer & fbo) = 0;
+    virtual void beginRendering(FrameBufferInfo& fbo) = 0;
 
     virtual void endRendering() = 0;
 
-    virtual void setClearColor(float r, float g, float b, float a) = 0;
+   // virtual void setClearColor(float r, float g, float b, float a) = 0;
 
     virtual void setDepthStencilState(const DepthStencilState& depthStencilState) = 0;
 
-    virtual void setClearAction(unsigned int action) = 0;
+    virtual void bindPipeline(GraphicsPipeline & pipeline) = 0;
 
-    virtual void setShader(Shader * shader) = 0;
+  //  virtual void setClearAction(unsigned int action) = 0;
 
     virtual void bindVertexBuffer(unsigned int bufferID) = 0;
 
@@ -73,6 +186,9 @@ public:
     virtual void drawElements(unsigned int count, const void* indices) = 0;
 
     virtual ~RenderContext() {};
+
+    int windowsWidth = 0;
+    int windowsHeight = 0;
 
 private:
 

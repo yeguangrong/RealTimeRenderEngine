@@ -44,7 +44,27 @@ BasePassRenderer::BasePassRenderer() {
 
     baseTexture = RenderContext::getInstance()->loadTexture2D("F:/RealTimeRenderEngineLatest/resources/textures/awesomeface.png");
     normalTexture = RenderContext::getInstance()->loadTexture2D("F:/RealTimeRenderEngineLatest/resources/textures/brickwall_normal.jpg");
+
+    fboColorTexture = RenderContext::getInstance()->createTexture2D(TextureUsage::RenderTarget, TextureFormat::RGBA, RenderContext::getInstance()->windowsWidth,
+        RenderContext::getInstance()->windowsHeight);
+
+    fboDepthTexture = RenderContext::getInstance()->createTexture2D(TextureUsage::DepthStencil, TextureFormat::Depth24_Stencil8, RenderContext::getInstance()->windowsWidth,
+        RenderContext::getInstance()->windowsHeight);
+
+    ColorAttachment colorAttachment;
+    colorAttachment.attachment = 0;
+    colorAttachment.texture = fboColorTexture;
+    colorAttachment.clearColor = glm::vec4(1,1,1,1);
+    framebuffer.colorAttachments.emplace_back(std::move(colorAttachment));
+
+    framebuffer.depthStencilAttachment.texture = fboDepthTexture;
+
+    graphicsPipeline.shader = lightingShader.getPtr();
     
+    PipelineColorBlendAttachment pipelineColorBlendAttachment;
+    pipelineColorBlendAttachment.blendState.enabled = true;
+    
+    graphicsPipeline.rasterizationState.blendState.attachmentsBlendState.push_back(pipelineColorBlendAttachment);
 }
 
 void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
@@ -55,16 +75,20 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         [this, camera](RenderContext * renderContext) {
         
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+        renderContext->beginRendering(framebuffer);
+
         // render
            // ------
         renderContext->setDepthStencilState(depthStencilState);
-        renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        renderContext->bindPipeline(graphicsPipeline);
+        
+        //renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         int errorCode = glGetError();
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.getPtr()->use();
-
-        errorCode = glGetError();
 
         lightingShader.getPtr()->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 
@@ -94,10 +118,20 @@ void BasePassRenderer::render(Camera* camera, RenderGraph & rg){
         renderContext->bindVertexBuffer(mesh->vertexAttributeBufferID);
 
         renderContext->bindIndexBuffer(mesh->indexBufferID);
-        //renderContext->drawArrays(0, 3);
+
         renderContext->drawElements(mesh->numTriangle * 3, 0);
+
+        renderContext->endRendering();
     
     });
+}
+
+unsigned int BasePassRenderer::getTargetColorTexture(int  attachment) {
+
+    if (attachment >= framebuffer.colorAttachments.size()) {
+        return 0;
+    }
+    return framebuffer.colorAttachments[attachment].texture->id;
 }
 
 BasePassRenderer::~BasePassRenderer() {

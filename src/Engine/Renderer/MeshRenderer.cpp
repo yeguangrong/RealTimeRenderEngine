@@ -28,8 +28,9 @@ void MeshRenderer::render(Camera* camera, RenderGraph& rg) {
 
     rg.addPass(passName, camera, [this, camera](RenderContext* renderContext) {
         renderContext->setDepthStencilState(depthStencilState);
-        renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+     //   renderContext->setClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+//        renderContext->setClearAction(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         int errorCode = glGetError();
         lightingShader.getPtr()->use();
         errorCode = glGetError();

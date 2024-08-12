@@ -20,6 +20,7 @@
 
 #include <assimp/camera.h>
 #include <assimp/mesh.h>
+#include <Engine/Base/ShaderCode.h>
 
 using namespace realtimerenderingengine;
 
@@ -29,13 +30,13 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SRC_WIDTH = 800;
+const unsigned int SRC_HEIGHT = 600;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
+float lastX = SRC_WIDTH / 2.0f;
+float lastY = SRC_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
@@ -48,6 +49,21 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 
 //int main(int argc, char* argv[])
+
+bool debugGPU = true;
+
+float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates. NOTE that this plane is now much smaller and at the top of the screen
+        // positions   // texCoords
+        -1.0f,  -1.0f,  0.0f, 0.0f,
+        1.0f,  -1.0f,  1.0f, 0.0f,
+         -1.0f,  1.0f,  0.0f, 1.0f,
+
+        1.0f,  -1.0f,  1.0f, 0.0f,
+         -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+};
+
+Shader* screenShader = nullptr;
 
 int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
@@ -64,7 +80,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "RenderEngine", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, "RenderEngine", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -87,9 +103,27 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
         return -1;
     }
 
-    OpenGLRenderContext* openGLRenderContext = new OpenGLRenderContext();
+    screenShader = new Shader(Vert_quad, Frag_quad);
+    screenShader->use();
+    screenShader->setInt("screenTexture", 0);
+    int errorCode = glGetError();
+    // screen quad VAO
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-    //BasePassRenderer* basePassRenderer = new BasePassRenderer;
+    OpenGLRenderContext* openGLRenderContext = new OpenGLRenderContext();
+    openGLRenderContext->windowsWidth = SRC_WIDTH;
+    openGLRenderContext->windowsHeight = SRC_HEIGHT;
+
+    BasePassRenderer* basePassRenderer = new BasePassRenderer;
 
     MeshRenderer* meshRenderer = new MeshRenderer("E:/learnRenderC++/resources/objects/nanosuit/nanosuit.obj");
 
@@ -109,19 +143,31 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
         RenderGraph renderGraph;
         
-        //basePassRenderer->render(&camera, renderGraph);
-        meshRenderer->render(&camera, renderGraph);
+        basePassRenderer->render(&camera, renderGraph);
+        //meshRenderer->render(&camera, renderGraph);
 
         renderGraph.execute(openGLRenderContext);
+
+        glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+        glDisable(GL_CULL_FACE);
+        screenShader->use();
+        glBindVertexArray(quadVAO);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, basePassRenderer->getTargetColorTexture(0));	// use the color attachment texture as the texture of the quad plane
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    //delete basePassRenderer;
+    delete basePassRenderer;
     delete meshRenderer;
     delete openGLRenderContext;
+
+    glDeleteVertexArrays(1, &quadVAO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------

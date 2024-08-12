@@ -107,13 +107,19 @@ Texture2D::Texture2D(const TextureUsage& usage, const TextureFormat& textureForm
 
 void Texture2D::initTexture(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height, const unsigned char* data) {
 
+    this->textureUsage = usage;
+    this->textureFormat = textureFormat;
+
     this->width = width;
 
     this->height = height;
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
+    //GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels
     glTexImage2D(GL_TEXTURE_2D, 0, getInternalformat(textureFormat), width, height, 0, getFormat(textureFormat), getDataType(textureFormat), data);
-
+    //GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels
+    //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, getFormat(textureFormat), getDataType(textureFormat), data);
+    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getTexelFilter(defaultSampler.minFilter));
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getTexelFilter(defaultSampler.magFilter));

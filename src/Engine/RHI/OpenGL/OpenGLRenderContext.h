@@ -16,9 +16,8 @@ public:
     virtual Texture2D* createTexture2D(const TextureUsage& usage, const TextureFormat& textureFormat, const int width, const int height) override;
     virtual Texture2D* loadTexture2D(const char* path) override;
     virtual void bindTexture(unsigned int bufferID, unsigned int bindingIndex) override;
-    virtual FrameBuffer createFrameBuffer() override;
 
-    virtual void beginRendering(const FrameBuffer& fbo) override;
+    virtual void beginRendering(FrameBufferInfo& fbo) override;
 
     virtual void endRendering() override;
 
@@ -26,9 +25,11 @@ public:
 
     virtual void drawElements(unsigned int count, const void* indices) override;
 
-    virtual void setClearColor(float r, float g, float b, float a) override;
+    //virtual void setClearColor(float r, float g, float b, float a) override;
 
     virtual void setDepthStencilState(const DepthStencilState& depthStencilState) override;
+
+    virtual void bindPipeline(GraphicsPipeline& pipeline) override;
 
     virtual unsigned int createVertexBuffer(const void* data, int sizeInByte) override;
 
@@ -40,9 +41,7 @@ public:
 
     virtual void setUpVertexBufferLayoutInfo(unsigned int vertexBufferID, unsigned int vertexBufferLayoutID, int size, int stride, int location, int offset = 0) override;
 
-    virtual void setClearAction(unsigned int action) override;
-
-    virtual void setShader(Shader* shader) override;
+   // virtual void setClearAction(unsigned int action) override;
 
     virtual void bindVertexBuffer(unsigned int bufferID) override;
 
